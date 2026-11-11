@@ -1,0 +1,69 @@
+
+import deadSnake from '../assets/sarpeleMort.png'
+import './GameOverPage.css'
+
+type GameOverPageProps = {
+  score: number
+  onRestart: () => void
+}
+
+export function GameOverPage({
+  score,
+  onRestart,
+}: GameOverPageProps) {
+  return (
+    <main className="game-over-page">
+      <div className="game-over-window">
+        <div className="game-over-toolbar">
+          <span>SNAKE_OS / FATAL ERROR</span>
+          <span>ERR_404</span>
+        </div>
+
+        <div className="game-over-content">
+          <div className="game-over-info">
+            <div className="game-over-heading">
+              <span className="game-over-alert">
+                SYSTEM FAILURE
+              </span>
+
+              <h1>GAME OVER</h1>
+
+              <p>A MURIT ȘARPELE!</p>
+            </div>
+
+            <div className="game-over-terminal">
+              <p>&gt; snake.exe stopped working</p>
+              <p>&gt; reason: skill issue</p>
+              <p>&gt; John.exe: Ne vedem in restanta.</p>
+            </div>
+
+            <div className="game-over-score">
+              <span>FINAL SCORE</span>
+              <strong>{score}</strong>
+            </div>
+
+            <button
+              className="game-over-restart"
+              type="button"
+              onClick={onRestart}
+            >
+              ↻ TRY AGAIN
+            </button>
+          </div>
+
+          <div className="game-over-mascot">
+            <div className="game-over-mascot-glow" />
+
+            <img
+              src={deadSnake}
+              alt="Snake mascot defeated"
+              draggable={false}
+            />
+
+           
+          </div>
+        </div>
+      </div>
+    </main>
+  )
+}
