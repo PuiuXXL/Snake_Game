@@ -8,19 +8,33 @@
 
 .game-placeholder {
   min-height: 100vh;
-
+  min-height: 100dvh;
+  width: 100%;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 16px;
+  overflow: hidden;
 
   background: #07120a;
   color: #eaffdc;
   text-align: center;
 }
 
+.game-placeholder .game-header {
+  width: min(90vw, 520px);
+  flex: 0 0 auto;
+}
+
+.game-placeholder .board-frame {
+  width: min(90vw, 520px, calc(100dvh - 190px));
+  flex: 0 1 auto;
+}
+
 .game-placeholder button {
+  flex: 0 0 auto;
   padding: 12px 24px;
   border: 1px solid #7dff4b;
   border-radius: 8px;
@@ -29,4 +43,15 @@
   color: #a8ff60;
 
   cursor: pointer;
+}
+
+@media (max-height: 600px) {
+  .game-placeholder {
+    padding-block: 8px;
+    gap: 8px;
+  }
+
+  .game-placeholder .board-frame {
+    width: min(70vh, 90vw);
+  }
 }
