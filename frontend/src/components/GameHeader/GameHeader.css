@@ -18,6 +18,8 @@
   font-size: clamp(40px, 7vw, 56px);
   line-height: 1;
   letter-spacing: -2px;
+  color: #b8ff8a;
+  text-shadow: 0 0 14px rgba(184, 255, 138, 0.3);
 }
 
 .score-card {

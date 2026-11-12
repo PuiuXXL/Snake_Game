@@ -1,3 +1,4 @@
+// Contractul dintre React si app/models/game.py (Python).
 export type Position = {
   x: number
   y: number
@@ -14,4 +15,9 @@ export type GameState = {
   food: Position | null
   score: number
   status: GameStatus
+}
+
+export type GameSession = {
+  gameId: string
+  state: GameState
 }

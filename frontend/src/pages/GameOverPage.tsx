@@ -5,11 +5,13 @@ import './GameOverPage.css'
 type GameOverPageProps = {
   score: number
   onRestart: () => void
+  onMenu: () => void
 }
 
 export function GameOverPage({
   score,
   onRestart,
+  onMenu,
 }: GameOverPageProps) {
   return (
     <main className="game-over-page">
@@ -28,7 +30,7 @@ export function GameOverPage({
 
               <h1>GAME OVER</h1>
 
-              <p>A MURIT ȘARPELE!</p>
+              <p>A MURIT SARPELE..</p>
             </div>
 
             <div className="game-over-terminal">
@@ -48,6 +50,14 @@ export function GameOverPage({
               onClick={onRestart}
             >
               ↻ TRY AGAIN
+            </button>
+
+            <button
+              className="game-over-menu"
+              type="button"
+              onClick={onMenu}
+            >
+              ☰ MENU
             </button>
           </div>
 

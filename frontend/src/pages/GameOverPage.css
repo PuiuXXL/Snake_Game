@@ -162,6 +162,33 @@
   outline-offset: 5px;
 }
 
+.game-over-menu {
+  width: 100%;
+  min-height: 60px;
+  border: 2px solid #567d46;
+  background: transparent;
+  color: #b9ff9d;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(11px, 1.2vw, 14px);
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s, color 0.15s;
+}
+
+.game-over-menu:hover {
+  transform: translateY(-2px);
+  background: #19321c;
+  color: #f4fff0;
+}
+
+.game-over-menu:active {
+  transform: translateY(3px);
+}
+
+.game-over-menu:focus-visible {
+  outline: 3px solid #f4fff0;
+  outline-offset: 5px;
+}
+
 .game-over-mascot {
   position: relative;
   min-height: 390px;
