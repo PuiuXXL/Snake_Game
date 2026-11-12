@@ -1,0 +1,28 @@
+.error-banner {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 10;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: min(92vw, 640px);
+  padding: 12px 20px;
+
+  border: 1px solid #7dff4b;
+  border-radius: 8px;
+  background: #07120a;
+  color: #eaffdc;
+}
+
+.error-banner button {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border: 1px solid #7dff4b;
+  border-radius: 6px;
+  background: transparent;
+  color: #a8ff60;
+  cursor: pointer;
+}
