@@ -36,53 +36,32 @@ Currently, the frontend is initialized and includes `GameBoard`, `GameHeader`, s
 
 ```text
 Snake_Game/
-├── backend/                         # Python backend; implemented separately
-└── frontend/
-    ├── public/
-    │   └── assets/
-    │       ├── png/                 # Snake, food, and wall images
-    │       ├── preview.png          # Preview of the downloaded asset pack
-    │       └── readme.txt           # Asset author and usage information
+│
+├── backend/                   # Python + FastAPI
+│   ├── app/
+│   │   ├── main.py            # Pornirea API-ului
+│   │   ├── api/               # Endpoint-uri HTTP
+│   │   ├── models/            # Datele jocului
+│   │   └── game/              # Logica Snake
+│   │       ├── movement.py    # Mișcarea
+│   │       ├── collisions.py  # Coliziunile
+│   │       ├── food.py        # Mâncarea
+│   │       └── engine.py      # Regulile jocului
+│   ├── tests/                 # Teste Python
+│   └── requirements.txt       # Dependențe
+│
+└── frontend/                  # React + TypeScript
+    ├── public/assets/         # Imaginile jocului
     ├── src/
-    │   ├── components/
-    │   │   ├── GameBoard/
-    │   │   │   ├── GameBoard.tsx
-    │   │   │   └── GameBoard.css
-    │   │   ├── GameHeader/
-    │   │   │   ├── GameHeader.tsx
-    │   │   │   └── GameHeader.css
-    │   │   ├── GameControls/
-    │   │   │   ├── GameControls.tsx
-    │   │   │   └── GameControls.css
-    │   │   └── GameOverlay/
-    │   │       ├── GameOverlay.tsx
-    │   │       └── GameOverlay.css
-    │   ├── hooks/
-    │   │   ├── useGame.ts
-    │   │   └── useKeyboardControls.ts
-    │   ├── services/
-    │   │   └── gameApi.ts
-    │   ├── types/
-    │   │   └── game.ts
-    │   ├── config/
-    │   │   ├── game.ts
-    │   │   └── api.ts
-    │   ├── fixtures/
-    │   │   └── previewGame.ts
-    │   ├── App.tsx
-    │   ├── App.css
-    │   ├── index.css
-    │   └── main.tsx
-    ├── .env.example
-    ├── .gitignore
-    ├── index.html
-    ├── package.json
-    ├── package-lock.json
-    ├── eslint.config.js
-    ├── tsconfig.json
-    ├── tsconfig.app.json
-    ├── tsconfig.node.json
-    └── vite.config.ts
+    │   ├── components/        # Tabla, scorul, ecranele
+    │   ├── pages/             # Start și Game Over
+    │   ├── hooks/             # Starea jocului și tastele
+    │   ├── services/          # Comunicarea cu Python
+    │   ├── config/            # Setările jocului
+    │   ├── types/             # Tipurile de date
+    │   ├── App.tsx            # Componenta principală
+    │   └── main.tsx           # Pornirea React
+    └── package.json           # Dependențe și comenzi
 ```
 
 ### Components
