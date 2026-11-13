@@ -1,107 +1,40 @@
-# Roadmap de prezentare (doar pentru prezentator)
+# Roadmap: ce modificăm în Python, în ce ordine, ce se întâmplă și ce spunem
 
-> Acest fișier conține **soluțiile complete**. Nu-l da participanților: ține-l local
-> sau scoate-l din branch-ul pe care îl distribui.
+> Conține **soluțiile complete**. Nu-l da participanților.
 
-Durată estimată: ~15 min explicații + ~60 min implementare. Fiecare etapă de cod are un
-rezultat **vizibil în joc**, ca participanții să vadă imediat ce au făcut.
+Pornire (o singură dată): `cd backend && python -m uvicorn main:app --reload --port 8000`
+și `cd frontend && npm run dev`, apoi `http://localhost:5173`.
+După fiecare pas: salvezi, serverul se reîncarcă singur, în browser apeși Start și rulezi testul.
 
-## Pregătire (înainte de sală)
+Ordinea: `movement.py` → `engine.py` → `movement.py` → `engine.py` → `collisions.py` →
+`engine.py` → `collisions.py` → `engine.py` → `food.py` → `engine.py`.
 
-```bash
-cd backend && pip install -r requirements.txt && uvicorn main:app --reload --port 8000
-```
-```bash
-cd frontend && npm install && npm run dev
-```
-
-- Copiază `frontend/.env.example` în `frontend/.env` pe fiecare laptop.
-- Deschide `http://localhost:5173` și `http://localhost:8000/docs`.
-- Verifică: Start arată tabla cu șarpele înghețat și mesajul „Jocul nu se poate mișca încă".
-- Ai `pytest` funcțional: `cd backend && pytest -q` (la început pică 23 de teste, e normal).
+Fiecare pas are: **Codul de la care pornim**, **Codul nou**, **Ce se vede** și **De spus**.
 
 ---
 
-# PARTEA 1 — Explicația codului (de sus în jos)
+## Pasul 1: `movement.py` (`next_head`) + `engine.py` (`step` minim)
 
-Ordine: **imaginea de ansamblu → ce vede utilizatorul → cum vorbesc cele două părți → cine
-decide regulile → unde lucrăm noi**.
+**Codul de la care pornim**
 
-## 1.1 Imaginea de ansamblu (2 min)
+`backend/game/movement.py`:
 
-Desenează pe tablă:
-
-```
-Browser (React)  ──POST /game/step {state, direction}──▶  FastAPI (Python)
-                 ◀────────── noua stare (JSON) ─────────
+```python
+def next_head(head: Position, direction: Direction) -> Position:
+    raise NotImplementedError("Nivel 1: completeaza next_head (game/movement.py)")
 ```
 
-Mesajul-cheie: **frontend-ul doar desenează și trimite tastele; backend-ul decide regulile**
-(mișcare, coliziuni, mâncare, scor). Frontend-ul nu știe nimic despre Snake. Mai mult:
-backend-ul nu ține minte nimic între cereri, starea circulă în ambele sensuri.
+`backend/game/engine.py`:
 
-## 1.2 Frontend, ce vede utilizatorul (4 min)
-
-Deschide în ordine:
-
-1. `frontend/src/App.tsx`: alege ecranul: `StartPage` → `GameScreen` → `GameOverPage`.
-2. `frontend/src/types/game.ts`: tipurile `Position`, `Direction`, `GameState`. **Contractul**:
-   ce trimite și ce primește backend-ul.
-3. `frontend/src/components/GameBoard/GameBoard.tsx`: desenează grila din
-   `boardSize`, `snake`, `food`. Observă: nu are nicio regulă de joc.
-4. `frontend/src/hooks/useKeyboardControls.ts`: tastele → `Direction`.
-5. `frontend/src/hooks/useGame.ts`: **inima frontend-ului**: la Start cere un joc nou, apoi
-   la fiecare ~140 ms trimite starea + direcția și pune răspunsul în state.
-6. `frontend/src/services/gameApi.ts` + `http.ts`: cele două apeluri HTTP.
-
-## 1.3 Backend, cum e organizat (4 min)
-
-Arată arborele:
-
-```
-backend/
-├── main.py            # intrarea: uvicorn main:app
-├── app/               # API-ul (gata făcut): rute, servicii, setări
-└── game/              # logica jocului: AICI lucrăm
+```python
+def step(state: GameState, requested: Direction) -> GameState:
+    """...(docstring cu cei 7 pași)..."""
+    raise NotImplementedError("Nivel 6: completeaza step (game/engine.py)")
 ```
 
-1. `app/routers/game.py`: două rute: `POST /game/new` și `POST /game/step`.
-2. `app/services/game_service.py`: stratul subțire dintre rută și joc.
-3. `game/models.py`: `Position` și `GameState`, **oglinda** lui `types/game.ts` din frontend.
-4. Deschide `http://localhost:8000/docs`, apasă **Try it out** pe `/game/new` și arată JSON-ul.
-   Apoi pe `/game/step` (răspuns 501): „funcția nu e scrisă încă".
+**Codul nou**
 
-## 1.4 Cum se leagă (2 min)
-
-Urmărește **o singură apăsare de tastă** de la un capăt la altul:
-
-> tastă `↓` → `useKeyboardControls` → `directionRef` din `useGame` → `stepGame()` →
-> `POST /game/step` → `routers/game.py` → `game_service.advance_game` → **`engine.step`**
-> → JSON → `setGame` → `GameBoard` se redesenează.
-
-Ultimul pas e tot ce lipsește: `engine.step`. Pornește jocul și arată: tabla apare, nimic
-nu se mișcă, pentru că `step` aruncă `NotImplementedError`.
-
-## 1.5 Regulile și testele (3 min)
-
-- Coordonate: **(0,0) e în stânga-sus**; `up` scade `y`, `down` crește `y`.
-- `game/movement.py`, `collisions.py`, `food.py`, `engine.py`: funcții mici, cu docstring.
-- `pytest -q` → 23 de teste pică. Fiecare test are „nivelul" lui: `pytest -k nivel1`.
-  **Obiectiv:** să le facem verzi, pe rând.
-
----
-
-# PARTEA 2 — Implementarea împreună
-
-Strategia: construim `step` **bucată cu bucată** și, la fiecare etapă, implementăm funcția
-mică de care are nevoie. Așa fiecare pas se vede în joc, nu doar în teste.
-
-După fiecare etapă: salvezi, `uvicorn --reload` se reîncarcă singur, în browser apeși
-Start (sau „Încearcă din nou") și rulezi testul nivelului.
-
-## Etapa A — Nivel 1: șarpele se mișcă
-
-În `game/movement.py`:
+`backend/game/movement.py`:
 
 ```python
 def next_head(head: Position, direction: Direction) -> Position:
@@ -114,7 +47,7 @@ def next_head(head: Position, direction: Direction) -> Position:
     return Position(x=head.x + 1, y=head.y)
 ```
 
-În `game/engine.py` înlocuiește corpul lui `step` cu varianta minimă:
+`backend/game/engine.py` (înlocuiește corpul lui `step`):
 
 ```python
 def step(state: GameState, requested: Direction) -> GameState:
@@ -124,13 +57,30 @@ def step(state: GameState, requested: Direction) -> GameState:
 ```
 
 - Test: `pytest -k nivel1`
-- **Se vede:** șarpele merge spre dreapta și **iese de pe tablă** (nu există pereți încă).
-  Discuție: de ce `[new_head] + snake[:-1]`? (capul se adaugă în față, coada se scoate.)
-  Tastele nu fac încă nimic.
+- **Ce se vede:** șarpele merge singur spre dreapta și **iese de pe tablă**. Tastele nu fac nimic.
 
-## Etapa B — Nivel 2: tastele schimbă direcția
+**De spus**
+- Frontend-ul trimite starea la fiecare ~140 ms, iar `step` întoarce starea nouă. Backend-ul nu ține minte nimic.
+- Originea (0,0) e în **stânga-sus**: `up` scade `y`, `down` crește `y`.
+- Mișcarea = adaugi capul nou în față și scoți coada. Corpul nu „se mută" celulă cu celulă.
+- `model_copy` face o copie, nu modificăm starea primită.
 
-În `game/movement.py`:
+## Pasul 2: `movement.py` (`is_opposite`) + `engine.py` (`step` cu direcție)
+
+**Codul de la care pornim**
+
+`backend/game/movement.py`:
+
+```python
+def is_opposite(current: Direction, requested: Direction) -> bool:
+    raise NotImplementedError("Nivel 2: completeaza is_opposite (game/movement.py)")
+```
+
+`backend/game/engine.py`: `step` din pasul 1 (folosește mereu `state.direction`).
+
+**Codul nou**
+
+`backend/game/movement.py`:
 
 ```python
 def is_opposite(current: Direction, requested: Direction) -> bool:
@@ -138,7 +88,7 @@ def is_opposite(current: Direction, requested: Direction) -> bool:
     return opposites[current] == requested
 ```
 
-În `step`, folosește direcția cerută:
+`backend/game/engine.py`:
 
 ```python
 def step(state: GameState, requested: Direction) -> GameState:
@@ -152,12 +102,29 @@ def step(state: GameState, requested: Direction) -> GameState:
 ```
 
 - Test: `pytest -k nivel2`
-- **Se vede:** șarpele virează la săgeți/WASD; dacă apeși direcția opusă, nu se întoarce.
-  Întrebare pentru sală: ce s-ar întâmpla fără `is_opposite`? (șarpele s-ar mușca singur.)
+- **Ce se vede:** tastele schimbă direcția. Opusul direcției curente e ignorat. Încă iese de pe tablă.
 
-## Etapa C — Nivel 3: pereții
+**De spus**
+- Până acum `requested` nu era folosit, acum e tasta apăsată.
+- Fără `is_opposite`, șarpele s-ar întoarce pe loc și s-ar mușca singur. Întreabă sala de ce.
+- Un dicționar e mai clar decât patru `if`-uri.
 
-În `game/collisions.py`:
+## Pasul 3: `collisions.py` (`hits_wall`) + `engine.py` (`step` cu perete)
+
+**Codul de la care pornim**
+
+`backend/game/collisions.py`:
+
+```python
+def hits_wall(head: Position, board_size: int) -> bool:
+    raise NotImplementedError("Nivel 3: completeaza hits_wall (game/collisions.py)")
+```
+
+`backend/game/engine.py`: `step` din pasul 2 (fără verificare de status, fără coliziuni).
+
+**Codul nou**
+
+`backend/game/collisions.py`:
 
 ```python
 def hits_wall(head: Position, board_size: int) -> bool:
@@ -167,7 +134,7 @@ def hits_wall(head: Position, board_size: int) -> bool:
     )
 ```
 
-În `step`, după calculul capului nou:
+`backend/game/engine.py`:
 
 ```python
 def step(state: GameState, requested: Direction) -> GameState:
@@ -188,19 +155,37 @@ def step(state: GameState, requested: Direction) -> GameState:
 ```
 
 - Test: `pytest -k nivel3`
-- **Se vede:** lovești peretele → apare pagina **Game Over**. Momentul „wow" al workshopului.
+- **Ce se vede:** lovești peretele și apare pagina **Game Over**. Momentul „wow" al workshopului.
+
+**De spus**
+- `status` e cum îi spunem frontend-ului ce ecran să arate: `running` sau `game_over`.
 - Capcană clasică: `>= board_size` (nu `>`), pentru că ultima celulă are indexul `board_size - 1`.
+- Verificăm capul **nou**, înainte să mutăm șarpele.
+- Dacă jocul s-a terminat, `step` întoarce starea neschimbată.
 
-## Etapa D — Nivel 4: coliziunea cu corpul
+## Pasul 4: `collisions.py` (`hits_self`) + `engine.py` (`step` cu corp)
 
-În `game/collisions.py`:
+**Codul de la care pornim**
+
+`backend/game/collisions.py`:
+
+```python
+def hits_self(head: Position, body: list[Position]) -> bool:
+    raise NotImplementedError("Nivel 4: completeaza hits_self (game/collisions.py)")
+```
+
+`backend/game/engine.py`: `step` din pasul 3 (doar `hits_wall`).
+
+**Codul nou**
+
+`backend/game/collisions.py`:
 
 ```python
 def hits_self(head: Position, body: list[Position]) -> bool:
     return head in body
 ```
 
-În `step`, adaugă (după `hits_wall`):
+`backend/game/engine.py` (înlocuiește verificarea de perete):
 
 ```python
     body = state.snake[:-1]   # coada se mută, deci nu o socotim
@@ -209,13 +194,24 @@ def hits_self(head: Position, body: list[Position]) -> bool:
 ```
 
 - Test: `pytest -k nivel4`
-- **Se vede:** dacă șarpele se întoarce peste el (ex. dreapta → jos → stânga → sus) → Game Over.
-- Discuție: de ce `head in body` merge? `Position` e `frozen`, deci două poziții cu aceleași
-  `x`, `y` sunt egale.
+- **Ce se vede:** dacă șarpele se întoarce peste el (dreapta → jos → stânga → sus) apare Game Over.
 
-## Etapa E — Nivel 5: mâncarea
+**De spus**
+- `head in body` merge pentru că `Position` e `frozen`: două poziții cu aceleași `x`, `y` sunt egale.
+- De ce `snake[:-1]`? Coada se mută în același pas, deci capul poate intra în celula ei.
 
-În `game/food.py`:
+## Pasul 5: `food.py` (`spawn_food`)
+
+**Codul de la care pornim**
+
+`backend/game/food.py`:
+
+```python
+def spawn_food(board_size: int, snake: list[Position]) -> Position | None:
+    raise NotImplementedError("Nivel 5: completeaza spawn_food (game/food.py)")
+```
+
+**Codul nou**
 
 ```python
 def spawn_food(board_size: int, snake: list[Position]) -> Position | None:
@@ -231,12 +227,21 @@ def spawn_food(board_size: int, snake: list[Position]) -> Position | None:
     return random.choice(free)
 ```
 
-- Test: `pytest -k nivel5` (încă nu se vede în joc; nu e apelată de `step`).
-- Discuție scurtă: de ce nu alegem direct `random` pe toată tabla? (ar nimeri șarpele.)
+- Test: `pytest -k nivel5`
+- **Ce se vede:** nimic în joc, `step` nu o apelează încă. Se vede doar în teste.
 
-## Etapa F — Nivel 6: `step` final (mănâncă și crește)
+**De spus**
+- De ce nu alegem direct un `random` pe toată tabla? Ar putea nimeri șarpele.
+- Facem lista celulelor **libere** și alegem una.
+- Returnăm `None` când tabla e plină (jocul e câștigat).
 
-Versiunea completă a lui `step` din `game/engine.py`:
+## Pasul 6: `engine.py` (`step` final: mănâncă și crește)
+
+**Codul de la care pornim**
+
+`backend/game/engine.py`: `step` din pasul 4 (mișcare, direcție, perete, corp, fără mâncare).
+
+**Codul nou**
 
 ```python
 def step(state: GameState, requested: Direction) -> GameState:
@@ -274,26 +279,19 @@ def step(state: GameState, requested: Direction) -> GameState:
     )
 ```
 
-- Test: `pytest -q` → **toate verzi (26 teste)**.
-- **Se vede:** mănânci mărul → scorul crește cu 10, șarpele se lungește, apare alt măr.
+- Test: `pytest -q` → toate verzi.
+- **Ce se vede:** mănânci mărul, scorul crește cu 10, șarpele se lungește, apare alt măr. Jocul e complet.
+
+**De spus**
+- Creșterea = nu scoatem coada. Asta e toată diferența dintre `ate` și `not ate`.
+- Mâncarea nouă se alege pe `new_snake`, ca să nu apară sub șarpe.
+- Recapitulare: am legat toate funcțiile mici într-una singură (`step`). Frontend-ul n-a fost modificat deloc.
 
 ---
 
-# PARTEA 3 — Bonus (dacă mai e timp)
+## Dacă ceva nu merge
 
-| Idee | Unde | Dificultate |
-|---|---|---|
-| Viteză care crește cu scorul | frontend: `TICK_MS` în `hooks/useGame.ts` | ușor |
-| Tablă mai mare/mică | `?board_size=` la `POST /game/new` (5-50) | ușor |
-| Mere speciale (+50) sau bombă | `game/food.py` + `engine.py`; sprite-urile există deja în `public/assets/png` | mediu |
-| Pereți în interiorul tablei | `collisions.py` + un câmp nou `walls` în `models.py` și `types/game.ts` | mediu |
-| Un endpoint nou `GET /score-tips` | `app/routers/` + înregistrat în `app/main.py` | ușor |
-| Scor maxim salvat | `localStorage` în frontend | ușor |
-
-# Plan B, dacă ceva nu merge
-
-- **Pagina rămâne pe „Se conectează la backend…"**: backend-ul nu rulează sau portul 8000 e ocupat.
-- **Ecran alb după o modificare în frontend**: oprește și repornește `npm run dev`.
-- **Un participant e blocat**: `pytest -k nivelN` îi spune exact ce așteaptă testul; soluția
-  etapei e în acest fișier.
-- **`uvicorn` nu e recunoscut**: `python -m uvicorn main:app --reload --port 8000`.
+- `uvicorn` nu e recunoscut: `python -m uvicorn main:app --reload --port 8000`.
+- Un test pică: `pytest -k nivelN` arată ce așteaptă.
+- Pagina rămâne pe „Se conectează la backend…": backend-ul nu rulează sau portul 8000 e ocupat.
+- Ecran alb după o modificare în frontend: oprește și repornește `npm run dev`.
