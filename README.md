@@ -35,54 +35,43 @@ The tree below describes the target frontend structure. It is an implementation 
 Currently, the frontend is initialized and includes `GameBoard`, `GameHeader`, shared game types, asset configuration, and preview data. `GameControls`, the overlay, hooks, API service, and API environment configuration still need to be added. `App.tsx`, `App.css`, and `index.css` currently contain the Vite starter screen and must be updated to display the game.
 
 ```text
+
 Snake_Game/
-├── backend/                         # Python backend; implemented separately
-└── frontend/
+│
+├── backend/                       # Python + FastAPI
+│   │
+│   ├── app/                       # API si comunicare
+│   │   ├── main.py                # Configurarea FastAPI
+│   │   ├── routers/               # Endpoint-uri HTTP
+│   │   │   ├── game.py            # Cererile jocului
+│   │   │   └── health.py          # Verificarea serverului
+│   │   ├── schemas.py            # Validarea datelor
+│   │   ├── services/              # Legatura cu logica
+│   │   │   └── game_service.py
+│   │   └── core/                  # Configurari generale
+│   │
+│   ├── game/                      # Logica Snake
+│   │   ├── models.py              # Datele jocului
+│   │   ├── movement.py            # Miscarea sarpelui
+│   │   ├── collisions.py          # Coliziunile
+│   │   ├── food.py                # Generarea mancarii
+│   │   └── engine.py              # Regulile jocului
+│   │
+│   ├── tests/                     # Teste Python
+│   └── requirements.txt           # Dependente Python
+│
+└── frontend/                      # React + TypeScript
     ├── public/
-    │   └── assets/
-    │       ├── png/                 # Snake, food, and wall images
-    │       ├── preview.png          # Preview of the downloaded asset pack
-    │       └── readme.txt           # Asset author and usage information
+    │   └── assets/               # Imaginile jocului
     ├── src/
-    │   ├── components/
-    │   │   ├── GameBoard/
-    │   │   │   ├── GameBoard.tsx
-    │   │   │   └── GameBoard.css
-    │   │   ├── GameHeader/
-    │   │   │   ├── GameHeader.tsx
-    │   │   │   └── GameHeader.css
-    │   │   ├── GameControls/
-    │   │   │   ├── GameControls.tsx
-    │   │   │   └── GameControls.css
-    │   │   └── GameOverlay/
-    │   │       ├── GameOverlay.tsx
-    │   │       └── GameOverlay.css
-    │   ├── hooks/
-    │   │   ├── useGame.ts
-    │   │   └── useKeyboardControls.ts
-    │   ├── services/
-    │   │   └── gameApi.ts
-    │   ├── types/
-    │   │   └── game.ts
-    │   ├── config/
-    │   │   ├── game.ts
-    │   │   └── api.ts
-    │   ├── fixtures/
-    │   │   └── previewGame.ts
-    │   ├── App.tsx
-    │   ├── App.css
-    │   ├── index.css
-    │   └── main.tsx
-    ├── .env.example
-    ├── .gitignore
-    ├── index.html
-    ├── package.json
-    ├── package-lock.json
-    ├── eslint.config.js
-    ├── tsconfig.json
-    ├── tsconfig.app.json
-    ├── tsconfig.node.json
-    └── vite.config.ts
+    │   ├── components/           # Elemente vizuale
+    │   ├── pages/                # Start si Game Over
+    │   ├── hooks/                # Stare si taste
+    │   ├── services/             # Comunicare cu Python
+    │   ├── App.tsx               # Componenta principala
+    │   └── main.tsx              # Pornirea React
+    └── package.json              # Dependente npm
+
 ```
 
 ### Components
